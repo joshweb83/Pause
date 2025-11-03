@@ -87,6 +87,19 @@ cp .env.example .env
 
 ### Development
 
+#### Option 1: Docker (Recommended)
+```bash
+# Start all services
+docker-compose up -d
+
+# Or use Makefile
+make start
+
+# View logs
+make logs
+```
+
+#### Option 2: Manual
 ```bash
 # Terminal 1: Start frontend
 cd frontend
@@ -100,6 +113,56 @@ uvicorn main:app --reload
 # Backend API: http://localhost:8000
 # API Docs: http://localhost:8000/docs
 ```
+
+## 🤖 Automation & CI/CD
+
+### Quick Commands (Makefile)
+
+```bash
+make help       # Show all available commands
+make start      # Start all services
+make stop       # Stop all services
+make commit     # Smart commit with auto-generated message
+make push       # Quick commit and push
+make watch      # Auto-watch and push on changes
+make test       # Run tests
+make logs       # View docker logs
+```
+
+### Auto-Push Scripts
+
+#### 1. Smart Commit (Recommended)
+```bash
+./scripts/smart-commit.sh   # Analyzes changes and generates commit message
+# or
+make commit
+```
+
+#### 2. Quick Push
+```bash
+./scripts/auto-push.sh      # Quick commit and push
+# or
+make push
+```
+
+#### 3. Watch Mode
+```bash
+./scripts/watch-and-push.sh # Auto-push every 30 seconds
+# or
+make watch
+```
+
+### GitHub Actions
+
+Automatically runs on every push to `main`, `develop`, or `claude/**` branches:
+
+- ✅ Backend linting (flake8, black)
+- ✅ Frontend linting (ESLint, TypeScript)
+- ✅ Build tests
+- ✅ Docker image builds
+- ✅ Auto-commit (if CI passes)
+
+See [docs/AUTOMATION.md](docs/AUTOMATION.md) for detailed setup guide.
 
 ## 📦 Core Modules
 
@@ -158,17 +221,39 @@ SECRET_KEY=your_secret_key_here
 
 ## 🎯 Roadmap
 
+### Phase 1: Core System ✅
 - [x] Project initialization
-- [ ] Basic video frame extraction
-- [ ] OCR integration
-- [ ] PDF viewer UI
-- [ ] User authentication
-- [ ] PDF generation with OCR layer
-- [ ] YouTube Shorts integration
-- [ ] AI-powered tagging
+- [x] Backend API with FastAPI
+- [x] Video frame extraction service
+- [x] OCR integration (Tesseract)
+- [x] PDF generation with searchable text
+- [x] Database schema and models
+- [x] User authentication (JWT)
+- [x] Frontend with Next.js + TypeScript
+- [x] PDF viewer component
+- [x] CI/CD with GitHub Actions
+- [x] Auto-push scripts and automation
+
+### Phase 2: Features (In Progress)
+- [ ] YouTube Shorts URL download
+- [ ] Full-text search UI
+- [ ] Frame annotations and bookmarks
+- [ ] Archive sharing with tokens
+- [ ] User dashboard
+
+### Phase 3: Enhancement
+- [ ] AI-powered tagging with LLM
+- [ ] Batch video processing
+- [ ] Advanced search filters
 - [ ] Mobile responsive design
-- [ ] Batch processing
-- [ ] Cloud deployment
+- [ ] Real-time processing updates
+
+### Phase 4: Scale
+- [ ] Cloud deployment (AWS/GCP)
+- [ ] CDN integration
+- [ ] Performance optimization
+- [ ] API rate limiting
+- [ ] Analytics dashboard
 
 ## 📄 License
 

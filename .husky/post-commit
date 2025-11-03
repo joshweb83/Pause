@@ -1,0 +1,9 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Auto-push after commit (optional - comment out if not desired)
+# Uncomment the following lines to enable auto-push after every commit
+
+# echo "📤 Auto-pushing to remote..."
+# BRANCH=$(git branch --show-current)
+# git push -u origin "$BRANCH" 2>/dev/null || echo "⚠️  Push failed. You may need to pull first."

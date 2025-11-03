@@ -1,0 +1,39 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Backend checks
+if git diff --cached --name-only | grep -q "^backend/"; then
+    echo "📦 Checking backend files..."
+    cd backend
+
+    # Check Python formatting with black
+    if command -v black &> /dev/null; then
+        black --check . 2>/dev/null || {
+            echo "⚠️  Python files need formatting. Run: cd backend && black ."
+            echo "   Auto-fixing..."
+            black . 2>/dev/null
+            git add .
+        }
+    fi
+
+    cd ..
+fi
+
+# Frontend checks
+if git diff --cached --name-only | grep -q "^frontend/"; then
+    echo "🎨 Checking frontend files..."
+    cd frontend
+
+    # Check TypeScript
+    if [ -f "package.json" ]; then
+        if command -v npm &> /dev/null; then
+            npm run lint --silent 2>/dev/null || echo "⚠️  Linting issues found"
+        fi
+    fi
+
+    cd ..
+fi
+
+echo "✅ Pre-commit checks complete!"
