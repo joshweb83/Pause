@@ -6,16 +6,26 @@
 help:
 	@echo "⏸  Pause - Available Commands"
 	@echo "================================"
+	@echo ""
+	@echo "🚀 Deployment:"
+	@echo "  make deploy         - One-click deploy to GitHub + Vercel"
+	@echo "  make vercel-setup   - Initial Vercel setup"
+	@echo "  make vercel-deploy  - Deploy to Vercel production"
+	@echo "  make vercel-preview - Create Vercel preview"
+	@echo ""
+	@echo "📦 Development:"
 	@echo "  make install     - Install all dependencies"
 	@echo "  make start       - Start all services with Docker"
 	@echo "  make stop        - Stop all services"
 	@echo "  make clean       - Clean up containers and volumes"
+	@echo "  make dev         - Start development mode"
+	@echo "  make test        - Run all tests"
+	@echo "  make logs        - Show docker logs"
+	@echo ""
+	@echo "🔄 Git Automation:"
 	@echo "  make commit      - Smart commit with auto-generated message"
 	@echo "  make push        - Quick commit and push"
 	@echo "  make watch       - Watch files and auto-push changes"
-	@echo "  make deploy      - Deploy to production"
-	@echo "  make test        - Run all tests"
-	@echo "  make logs        - Show docker logs"
 
 # Install dependencies
 install:
@@ -70,10 +80,22 @@ test:
 	cd backend && pytest tests/ || echo "No tests found"
 	cd frontend && npm test || echo "No tests found"
 
-# Deploy
+# Deploy to GitHub and Vercel
 deploy:
-	@echo "🚀 Deploying to production..."
-	@echo "This is a placeholder. Configure your deployment here."
+	@bash scripts/deploy.sh
+
+# Vercel setup
+vercel-setup:
+	@bash scripts/vercel-setup.sh
+
+# Vercel commands
+vercel-deploy:
+	@echo "🚀 Deploying to Vercel..."
+	cd frontend && vercel --prod
+
+vercel-preview:
+	@echo "👀 Creating preview deployment..."
+	cd frontend && vercel
 
 # Development mode
 dev:

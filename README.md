@@ -131,36 +131,64 @@ make logs       # View docker logs
 
 ### Auto-Push Scripts
 
-#### 1. Smart Commit (Recommended)
+#### 1. One-Click Deploy (Recommended) 🚀
+```bash
+make deploy                 # Deploy to GitHub + Vercel automatically
+```
+
+#### 2. Smart Commit
 ```bash
 ./scripts/smart-commit.sh   # Analyzes changes and generates commit message
 # or
 make commit
 ```
 
-#### 2. Quick Push
+#### 3. Quick Push
 ```bash
 ./scripts/auto-push.sh      # Quick commit and push
 # or
 make push
 ```
 
-#### 3. Watch Mode
+#### 4. Watch Mode
 ```bash
 ./scripts/watch-and-push.sh # Auto-push every 30 seconds
 # or
 make watch
 ```
 
+### Vercel Automatic Deployment
+
+Push to GitHub → Automatic deployment to Vercel!
+
+```bash
+# Initial setup (one-time)
+make vercel-setup
+
+# After setup, just push code
+git push
+
+# Or use one-click deploy
+make deploy
+```
+
+**Deployment Strategy:**
+- `main` branch → **Production** (https://pause.vercel.app)
+- Other branches → **Preview** (automatic preview URLs)
+- Pull requests → **Preview** with comment
+
+See [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md) for detailed setup guide.
+
 ### GitHub Actions
 
-Automatically runs on every push to `main`, `develop`, or `claude/**` branches:
+Automatically runs on every push:
 
 - ✅ Backend linting (flake8, black)
 - ✅ Frontend linting (ESLint, TypeScript)
 - ✅ Build tests
 - ✅ Docker image builds
-- ✅ Auto-commit (if CI passes)
+- ✅ **Vercel deployment**
+- ✅ Preview URL for PRs
 
 See [docs/AUTOMATION.md](docs/AUTOMATION.md) for detailed setup guide.
 
