@@ -1,6 +1,6 @@
 # Pause - Makefile for common tasks
 
-.PHONY: help install start stop clean commit push deploy
+.PHONY: help install start stop clean commit push deploy pr-list pr-view pr-check
 
 # Default target
 help:
@@ -24,8 +24,14 @@ help:
 	@echo ""
 	@echo "🔄 Git Automation:"
 	@echo "  make commit      - Smart commit with auto-generated message"
-	@echo "  make push        - Quick commit and push"
+	@echo "  make push        - Quick commit and push (auto PR & merge)"
 	@echo "  make watch       - Watch files and auto-push changes"
+	@echo ""
+	@echo "🔀 Pull Request:"
+	@echo "  make pr-list     - List all pull requests"
+	@echo "  make pr-view     - View current branch PR"
+	@echo "  make pr-check    - Check PR and deployment status"
+	@echo "  make pr-merge    - Manually merge current PR"
 
 # Install dependencies
 install:
@@ -104,3 +110,28 @@ dev:
 	cd backend && uvicorn main:app --reload &
 	@echo "Starting frontend..."
 	cd frontend && npm run dev
+
+# Pull Request commands
+pr-list:
+	@echo "📋 Pull Requests:"
+	@gh pr list
+
+pr-view:
+	@echo "👀 Viewing PR for current branch..."
+	@gh pr view --web || echo "❌ No PR found for current branch"
+
+pr-check:
+	@echo "🔍 Checking PR status..."
+	@echo ""
+	@echo "GitHub Actions:"
+	@gh run list --limit 3
+	@echo ""
+	@echo "Current PR:"
+	@gh pr view || echo "No PR for current branch"
+	@echo ""
+	@echo "Vercel deployments:"
+	@cd frontend && vercel ls --limit 3 || echo "Run 'vercel login' first"
+
+pr-merge:
+	@echo "🔀 Enabling auto-merge for current PR..."
+	@gh pr merge --auto --squash || echo "❌ Failed to enable auto-merge. Make sure PR exists."
