@@ -47,6 +47,23 @@ jobs:
           cd frontend
           vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
 
+      - name: Create Deployment Status (Start)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        id: deployment
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'Preview',
+              required_contexts: [],
+              auto_merge: false,
+              description: 'Vercel Preview Deployment'
+            });
+            return deployment.data.id;
+
       - name: Deploy to Vercel
         id: deploy
         run: |
@@ -59,17 +76,100 @@ jobs:
           echo "url=$URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $URL"
 
+      - name: Update Deployment Status (Success)
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deployment.outputs.result }},
+              state: 'success',
+              environment_url: '${{ steps.deploy.outputs.url }}',
+              description: 'Preview deployment successful',
+              auto_inactive: true
+            });
+
+      - name: Update Deployment Status (Failure)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deployment.outputs.result }},
+              state: 'failure',
+              description: 'Preview deployment failed'
+            });
+
       - name: Comment PR with Preview URL
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.issues.createComment({
+            const deployUrl = '${{ steps.deploy.outputs.url }}';
+            const commitSha = context.sha.substring(0, 7);
+            const commentBody = `## 🚀 Vercel Preview Deployment
+
+            ✅ **Preview is ready!**
+
+            | Name | Link |
+            |------|------|
+            | 🔍 **Preview URL** | [Visit Preview](${deployUrl}) |
+            | 📝 **Commit** | \`${commitSha}\` |
+            | 🌿 **Branch** | \`${{ github.head_ref }}\` |
+            | 👤 **Author** | @${{ github.actor }} |
+
+            ---
+
+            ### 📱 Test on devices:
+            - [Desktop Preview](${deployUrl})
+            - [Mobile Preview](${deployUrl}?viewport=mobile)
+
+            <details>
+            <summary>📊 Deployment Details</summary>
+
+            - **Environment**: Preview
+            - **Framework**: Next.js 14
+            - **Build Time**: \`$(date -u '+%Y-%m-%d %H:%M:%S UTC')\`
+            - **Region**: Seoul (icn1)
+
+            </details>
+
+            > 💡 **Tip**: This preview will be automatically deleted after 30 days of inactivity.
+            `;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ Preview deployed to: ${{ steps.deploy.outputs.url }}`
-            })
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Vercel Preview Deployment')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              });
+            }
 
       - name: Deployment Summary
         run: |
