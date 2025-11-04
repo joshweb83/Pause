@@ -1,13 +1,16 @@
 # Pause - Makefile for common tasks
 
-.PHONY: help install start stop clean commit push deploy pr-list pr-view pr-check
+.PHONY: help install start stop clean commit push deploy pr-list pr-view pr-check setup-test
 
 # Default target
 help:
 	@echo "⏸  Pause - Available Commands"
 	@echo "================================"
 	@echo ""
-	@echo "🚀 Deployment:"
+	@echo "🚀 Quick Start:"
+	@echo "  make setup-test     - 🎯 Setup main branch & test automation (RECOMMENDED!)"
+	@echo ""
+	@echo "📤 Deployment:"
 	@echo "  make deploy         - One-click deploy to GitHub + Vercel"
 	@echo "  make vercel-setup   - Initial Vercel setup"
 	@echo "  make vercel-deploy  - Deploy to Vercel production"
@@ -135,3 +138,7 @@ pr-check:
 pr-merge:
 	@echo "🔀 Enabling auto-merge for current PR..."
 	@gh pr merge --auto --squash || echo "❌ Failed to enable auto-merge. Make sure PR exists."
+
+# Setup and test automation (RECOMMENDED FIRST STEP)
+setup-test:
+	@bash scripts/setup-and-test.sh
